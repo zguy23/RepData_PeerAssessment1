@@ -86,3 +86,44 @@ median(dataNewByDateSum$TotalSteps)
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+# Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+# Create a new variable in dataNew to indicate day of week
+dayOfWeek <- weekdays(dataNew$Date)
+# Create character vectors containing weekdays and weekend days.
+weekend <- c("Saturday","Sunday")
+weekday <- c("Monday","Tuesday","Wednesday","Thursday","Friday")
+# Create logical vectors identifying weekdays vs weekend days.
+isWeekend <- dayOfWeek %in% weekend
+isWeekday <- dayOfWeek %in% weekday
+# Overwrite weekend days and weekdays accordingly.
+dayOfWeek[isWeekend] <- c("weekend")
+dayOfWeek[isWeekday] <- c("weekday")
+# Add new variable to dataNew DF
+dataNew <- cbind(dataNew,dayOfWeek)
+
+# Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+dataNewWeekday <- dataNew[dataNew$dayOfWeek %in% c("weekday"),]
+dataNewWeekend <- dataNew[dataNew$dayOfWeek %in% c("weekend"),]
+# Calculate the mean number of steps per interval for weekend and weekday
+# Weekday
+dataNewWeekdayByInt <- group_by(dataNewWeekday,Interval)
+dataNewWeekdayByIntMean <- dataNewWeekdayByInt %>%
+                                summarize(TotalSteps=mean(Steps))
+# Weekend
+dataNewWeekendByInt <- group_by(dataNewWeekend,Interval)
+dataNewWeekendByIntMean <- dataNewWeekendByInt %>%
+                                summarize(TotalSteps=mean(Steps))
+# Convert Interval into a date format - weekday
+intervalDateWeekday <- strptime(sprintf("%04d", as.numeric(dataNewWeekdayByIntMean$Interval)), format="%H%M")
+dataNewWeekdayByIntMean <- cbind(dataNewWeekdayByIntMean,intervalDateWeekday)
+# Convert Interval into a date format - weekend
+intervalDateWeekend <- strptime(sprintf("%04d", as.numeric(dataByIntMean$Interval)), format="%H%M")
+dataNewWeekendByIntMean <- cbind(dataNewWeekendByIntMean,intervalDateWeekend)
+
+# Create plots
+par(mfrow = c(2, 1))
+plot (dataNewWeekdayByIntMean$intervalDateWeekday,dataNewWeekdayByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
+plot (dataNewWeekendByIntMean$intervalDateWeekend,dataNewWeekendByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
+```
