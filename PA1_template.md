@@ -1,19 +1,43 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 ## Load the necessary libraries
-```{r}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(lubridate)
+```
+
+```
+## Warning: package 'lubridate' was built under R version 3.1.2
+```
+
+```r
 library(stringr)
 library(lattice)
 ```
 
+```
+## Warning: package 'lattice' was built under R version 3.1.2
+```
+
 ## Loading and preprocessing the data
-```{r}
+
+```r
 unzip("activity.zip")
 data <- read.csv("activity.csv",colClasses=c(NA,"Date",NA),col.names=c("Steps","Date","Interval"))
 # Reorder the columns
@@ -21,7 +45,8 @@ data <- select(data,Date,Interval,Steps)
 ```
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 # Calculate the number of steps taken per day using the dplyr package
 dataByDate <- group_by(data,Date)
 dataByDateSum <- dataByDate %>%
@@ -29,13 +54,30 @@ dataByDateSum <- dataByDate %>%
                         summarize(TotalSteps=sum(Steps))
 # Create a histogram for the total number of steps per day
 hist(dataByDateSum$TotalSteps)
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 # Calculate the mean and median of the total number of steps per day
 mean(dataByDateSum$TotalSteps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(dataByDateSum$TotalSteps)
 ```
 
+```
+## [1] 10765
+```
+
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 # Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 # Calculate the mean number of steps per interval
 dataByInt <- group_by(data,Interval)
@@ -48,17 +90,41 @@ dataByIntMean <- cbind(dataByIntMean,intervalDate)
 
 # Create the plot
 plot (dataByIntMean$intervalDate,dataByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
+```
 
+![](./PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+```r
 # Determine which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 dataByIntMean[(dataByIntMean$TotalSteps == max(dataByIntMean$TotalSteps)),]
 ```
 
+```
+##     Interval TotalSteps        intervalDate
+## 104      835   206.1698 2015-03-15 08:35:00
+```
+
 ## Imputing missing values
-```{r}
+
+```r
 # Check for NAs in the entire data DF.
 sum(is.na(data))
+```
+
+```
+## [1] 2304
+```
+
+```r
 # Check for NAs in the Steps variable.
 sum(is.na(data$Steps))
+```
+
+```
+## [1] 2304
+```
+
+```r
 # Since out latter output equals check on entire DF then NAs only exist in Steps variable
 
 ## Strategy to for filling in NA values
@@ -80,9 +146,25 @@ dataNewByDateSum <- dataNewByDate %>%
     summarize(TotalSteps=sum(Steps))
 # Create a histogram for the total number of steps per day
 hist(dataNewByDateSum$TotalSteps)
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
+```r
 # Calculate the mean and median of the total number of steps per day
 mean(dataNewByDateSum$TotalSteps)
+```
+
+```
+## [1] 10765.64
+```
+
+```r
 median(dataNewByDateSum$TotalSteps)
+```
+
+```
+## [1] 10762
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
