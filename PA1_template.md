@@ -1,41 +1,8 @@
 # Reproducible Research: Peer Assessment 1
-## Load the necessary libraries
+----------------------------------------
 
-```r
-library(dplyr)
-```
 
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
-library(lubridate)
-```
-
-```
-## Warning: package 'lubridate' was built under R version 3.1.2
-```
-
-```r
-library(stringr)
-library(lattice)
-```
-
-```
-## Warning: package 'lattice' was built under R version 3.1.2
-```
-
-## Loading and preprocessing the data
+### Loading and preprocessing the data
 
 ```r
 unzip("activity.zip")
@@ -44,7 +11,8 @@ data <- read.csv("activity.csv",colClasses=c(NA,"Date",NA),col.names=c("Steps","
 data <- select(data,Date,Interval,Steps)
 ```
 
-## What is mean total number of steps taken per day?
+### What is mean total number of steps taken per day?
+##### 1) Total number of steps per day calculated.
 
 ```r
 # Calculate the number of steps taken per day using the dplyr package
@@ -52,11 +20,18 @@ dataByDate <- group_by(data,Date)
 dataByDateSum <- dataByDate %>%
                         filter(!Steps %in% NA) %>%
                         summarize(TotalSteps=sum(Steps))
-# Create a histogram for the total number of steps per day
-hist(dataByDateSum$TotalSteps)
 ```
 
-![](./PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+##### 2) Histogram of the total number of steps taken each day.
+
+```r
+# Create a histogram for the total number of steps per day
+hist(dataByDateSum$TotalSteps, col="blue")
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+##### 3) Calculate and report the mean and median of the total number of steps taken per day.
 
 ```r
 # Calculate the mean and median of the total number of steps per day
@@ -75,7 +50,8 @@ median(dataByDateSum$TotalSteps)
 ## [1] 10765
 ```
 
-## What is the average daily activity pattern?
+### What is the average daily activity pattern?
+##### 1) A time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
 
 ```r
 # Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
@@ -89,10 +65,12 @@ intervalDate <- strptime(sprintf("%04d", as.numeric(dataByIntMean$Interval)), fo
 dataByIntMean <- cbind(dataByIntMean,intervalDate)
 
 # Create the plot
-plot (dataByIntMean$intervalDate,dataByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
+plot (dataByIntMean$intervalDate,dataByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps", col="blue")
 ```
 
-![](./PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+![](./PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+
+##### 2) Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 ```r
 # Determine which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
@@ -101,10 +79,10 @@ dataByIntMean[(dataByIntMean$TotalSteps == max(dataByIntMean$TotalSteps)),]
 
 ```
 ##     Interval TotalSteps        intervalDate
-## 104      835   206.1698 2015-03-15 08:35:00
+## 104      835   206.1698 2015-06-14 08:35:00
 ```
 
-## Imputing missing values
+### Imputing missing values
 
 ```r
 # Check for NAs in the entire data DF.
@@ -145,10 +123,10 @@ dataNewByDateSum <- dataNewByDate %>%
     filter(!Steps %in% NA) %>%
     summarize(TotalSteps=sum(Steps))
 # Create a histogram for the total number of steps per day
-hist(dataNewByDateSum$TotalSteps)
+hist(dataNewByDateSum$TotalSteps, col="blue")
 ```
 
-![](./PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+![](./PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
 
 ```r
 # Calculate the mean and median of the total number of steps per day
@@ -167,7 +145,7 @@ median(dataNewByDateSum$TotalSteps)
 ## [1] 10762
 ```
 
-## Are there differences in activity patterns between weekdays and weekends?
+### Are there differences in activity patterns between weekdays and weekends?
 
 ```r
 # Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
@@ -207,8 +185,8 @@ dataNewWeekendByIntMean <- cbind(dataNewWeekendByIntMean,intervalDateWeekend)
 
 # Create plots
 par(mfrow = c(2, 1))
-plot (dataNewWeekdayByIntMean$intervalDateWeekday,dataNewWeekdayByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
-plot (dataNewWeekendByIntMean$intervalDateWeekend,dataNewWeekendByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
+plot (dataNewWeekdayByIntMean$intervalDateWeekday,dataNewWeekdayByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps", col="blue")
+plot (dataNewWeekendByIntMean$intervalDateWeekend,dataNewWeekendByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps", col="blue")
 ```
 
-![](./PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+![](./PA1_template_files/figure-html/unnamed-chunk-9-1.png) 

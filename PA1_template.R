@@ -1,51 +1,35 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
-----------------------------------------
-```{r, message=FALSE,warning=FALSE,echo=FALSE}
+### Load necessary libraries
 library(dplyr)
 library(lubridate)
 library(stringr)
 library(lattice)
-```
+
 
 ### Loading and preprocessing the data
-```{r}
+# Unzip the data.  
+# Note: The zip files containing the data must be in the local directory
 unzip("activity.zip")
+
+# Read in the .csv file
 data <- read.csv("activity.csv",colClasses=c(NA,"Date",NA),col.names=c("Steps","Date","Interval"))
 # Reorder the columns
 data <- select(data,Date,Interval,Steps)
-```
+
 
 ### What is mean total number of steps taken per day?
-##### 1) Total number of steps per day calculated.
-```{r}
 # Calculate the number of steps taken per day using the dplyr package
 dataByDate <- group_by(data,Date)
 dataByDateSum <- dataByDate %>%
                         filter(!Steps %in% NA) %>%
                         summarize(TotalSteps=sum(Steps))
-```
-
-##### 2) Histogram of the total number of steps taken each day.
-```{r}
 # Create a histogram for the total number of steps per day
-hist(dataByDateSum$TotalSteps, col="blue")
-```
-
-##### 3) Calculate and report the mean and median of the total number of steps taken per day.
-```{r}
+hist(dataByDateSum$TotalSteps)
 # Calculate the mean and median of the total number of steps per day
 mean(dataByDateSum$TotalSteps)
 median(dataByDateSum$TotalSteps)
-```
+
 
 ### What is the average daily activity pattern?
-##### 1) A time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
-```{r}
 # Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 # Calculate the mean number of steps per interval
 dataByInt <- group_by(data,Interval)
@@ -57,17 +41,13 @@ intervalDate <- strptime(sprintf("%04d", as.numeric(dataByIntMean$Interval)), fo
 dataByIntMean <- cbind(dataByIntMean,intervalDate)
 
 # Create the plot
-plot (dataByIntMean$intervalDate,dataByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps", col="blue")
-```
+plot (dataByIntMean$intervalDate,dataByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
 
-##### 2) Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r}
 # Determine which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 dataByIntMean[(dataByIntMean$TotalSteps == max(dataByIntMean$TotalSteps)),]
-```
+
 
 ### Imputing missing values
-```{r}
 # Check for NAs in the entire data DF.
 sum(is.na(data))
 # Check for NAs in the Steps variable.
@@ -92,14 +72,13 @@ dataNewByDateSum <- dataNewByDate %>%
     filter(!Steps %in% NA) %>%
     summarize(TotalSteps=sum(Steps))
 # Create a histogram for the total number of steps per day
-hist(dataNewByDateSum$TotalSteps, col="blue")
+hist(dataNewByDateSum$TotalSteps)
 # Calculate the mean and median of the total number of steps per day
 mean(dataNewByDateSum$TotalSteps)
 median(dataNewByDateSum$TotalSteps)
-```
+
 
 ### Are there differences in activity patterns between weekdays and weekends?
-```{r}
 # Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
 # Create a new variable in dataNew to indicate day of week
@@ -137,6 +116,28 @@ dataNewWeekendByIntMean <- cbind(dataNewWeekendByIntMean,intervalDateWeekend)
 
 # Create plots
 par(mfrow = c(2, 1))
-plot (dataNewWeekdayByIntMean$intervalDateWeekday,dataNewWeekdayByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps", col="blue")
-plot (dataNewWeekendByIntMean$intervalDateWeekend,dataNewWeekendByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps", col="blue")
-```
+plot (dataNewWeekdayByIntMean$intervalDateWeekday,dataNewWeekdayByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
+plot (dataNewWeekendByIntMean$intervalDateWeekend,dataNewWeekendByIntMean$TotalSteps, typ="l",xlab = "Time of Day (HH:MM)",ylab = "Mean Number of Steps")
+
+
+
+
+
+
+# Convert the intervals into hours and minutes
+#intToHHMM <- function (x) {  sprintf("%02d:%02d", x %/% 100, x %% 100)}
+#intToHHMM(data)
+#interval <- intToHHMM(dataByIntSum$Interval)
+
+# Try2
+# Create a new column which combines date with interval
+#data <- cbind (data, ymd_hm(paste(data$Date, str_pad(data$Interval, 
+#                                                     4, pad = "0"))))
+#names(data) <- c("Date","Interval","Steps","DateInterval")
+
+# Calculate the mean number of steps per ignoring NAs
+#mean(data$steps,na.rm = TRUE)
+
+#dataByIntSum$IntervalCalc <- strptime(sprintf("%04d", as.numeric(dataByIntSum$Interval)), format="%H%M")
+
+#dataNew <- mutate(dataNew, DayOfWeek = weekdays(dataNew$Date))
